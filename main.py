@@ -8,6 +8,9 @@ acomodo del proyecto. Aquí en main.py solo se encuentran las pruebas realizadas
 de que la prueba es un éxito, o bien, una leyenda de AssertionError que diga la razón por la cual sale en Error. A su vez, también
 quito el uso del time.sleep(), cambiándose por un método de espera inteligente.
 """
+"""
+REVISION 3: Se agregan metodos assert en todas las pruebas y se quitan las excepciones de las aserciones
+"""
 
 class TestUrbanRoutes:
     driver = None
@@ -39,7 +42,8 @@ class TestUrbanRoutes:
         page.click_taxi_button()
         page.wait_for_comfort_button()
         page.click_in_comfort()
-        page.comfort_selected()
+        comfort_button = page.find_comfort_button()
+        assert "active" in comfort_button.get_attribute("class"), "Comfort no seleccionado"
 
     #Prueba 3: Rellenar el número de teléfono.
     def test_cell_number_field(self):
@@ -54,10 +58,7 @@ class TestUrbanRoutes:
         page.add_telephone_number(data.phone_number)
         page.click_next_button()
         page.get_code()
-        try:
-            page.click_in_confirm_button()
-        except Exception as e:
-            raise AssertionError("No es posible clickear el botón 'Confirmar'") from e
+        assert page.click_in_confirm_button(), "No es posible clickear el botón 'Confirmar'"
 
     #Prueba 4 Agregar una tarjeta de crédito.
     def test_add_credit_card(self):
@@ -75,10 +76,8 @@ class TestUrbanRoutes:
         page.click_in_any_other_element()
         page.click_in_add()
         page.click_in_close()
-        try:
-            page.card_added()
-        except Exception as e:
-            raise AssertionError("No se pudo verificar la adición de la tarjeta de crédito.") from e
+        assert page.card_added(), "La tarjeta no se agregó correctamente."
+
 
     #Prueba 5 Escribir un mensaje para el controlador.
     def test_send_message(self):
@@ -144,7 +143,8 @@ class TestUrbanRoutes:
         page.click_in_blanket_napkins()
         page.click_in_icecream()
         page.click_order_cab()
-        page.order_cab_displayed()
+        order_header_content = page.looking_for_cab_screen()
+        assert order_header_content.is_displayed(), "El elemento order-header-content no se está mostrando."
 
     @classmethod
     def teardown_class(cls):

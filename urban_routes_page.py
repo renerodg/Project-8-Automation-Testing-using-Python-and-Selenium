@@ -17,7 +17,7 @@ class BasePage:
     from_field = (By.ID, "from")
     to_field = (By.ID, "to")
     taxi_button = (By.CLASS_NAME, "button.round")
-    comfort_button = (By.XPATH, '//div[text()="Comfort"]')
+    comfort_button = (By.XPATH, '//*[@id="root"]/div/div[3]/div[3]/div[2]/div[1]/div[5]')
     set_phone_number_button = (By.CLASS_NAME, "np-text")
     phone_number_field = (By.ID, "phone")
     next_button = (By.CLASS_NAME, "button")
@@ -74,9 +74,8 @@ class UrbanRoutesPage(BasePage):
             EC.element_to_be_clickable(self.comfort_button)
         ).click()
 
-    def comfort_selected(self):
-        comfort_button = self.driver.find_element(*self.comfort_button)
-        return "active" in comfort_button.get_attribute("class")
+    def find_comfort_button(self):
+        return self.driver.find_element(*self.comfort_button)
 
     def set_route(self, from_address, to_address):
         self.set_from(from_address)
@@ -96,9 +95,13 @@ class UrbanRoutesPage(BasePage):
         self.driver.find_element(*self.code_field).send_keys(get_phone_code)
 
     def click_in_confirm_button(self):
-        WebDriverWait(self.driver, 2).until(
-            EC.element_to_be_clickable(self.confirm_button)
-        ).click()
+        try:
+            confirm_button = self.driver.find_element(*self.confirm_button)
+            confirm_button.click()
+            return True,
+        except Exception as e:
+            print(f"Error al hacer clic en el botón 'Confirmar': {e}")
+            return False
 
     #Proceso de tarjeta de credito
     def click_payment_method(self):
@@ -127,8 +130,7 @@ class UrbanRoutesPage(BasePage):
 
     def card_added(self):
         card_checkbox = self.driver.find_element(*self.card_added_successfully)
-        is_checked = card_checkbox.get_attribute("checked") is not None
-        assert is_checked, "La tarjeta no se agregó correctamente."
+        return card_checkbox.get_attribute("checked") is not None
 
     #Proceso de mandar mensaje
     def search_message_for_driver(self):
@@ -169,7 +171,6 @@ class UrbanRoutesPage(BasePage):
     def click_order_cab(self):
         return self.driver.find_element(*self.reserve_button).click()
 
-    def order_cab_displayed(self):
+    def looking_for_cab_screen(self):
         order_header_content = self.driver.find_element(*self.looking_for_cab)
-        assert order_header_content.is_displayed(), "El elemento order-header-content no se está mostrando."
-
+        return order_header_content
